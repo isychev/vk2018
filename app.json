@@ -23,5 +23,21 @@
     "ios": {
       "supportsTablet": true
     }
+  },
+  "android":{
+    "config": {
+      "googleSignIn": "dontbrain@gmail.com",
+      "googleMaps":{
+        "apiKey": "AIzaSyCWEj1fWkb8MOF0lqG_4SrrfmbyMp-Sjgc"
+      }
+    }
+  },
+  "ios":{
+    "config": {
+      "googleSignIn": "dontbrain@gmail.com",
+      "googleMaps":{
+        "apiKey": "AIzaSyCWEj1fWkb8MOF0lqG_4SrrfmbyMp-Sjgc"
+      }
+    }
   }
 }
