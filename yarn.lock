@@ -3855,6 +3855,10 @@ react-native-maps@expo/react-native-maps#v0.22.0-exp.0:
     babel-plugin-module-resolver "^3.1.0"
     babel-preset-react-native "1.9.0"
 
+react-native-pedometer@0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-pedometer/-/react-native-pedometer-0.0.7.tgz#044e0c1327af58ddec0e887f189dcc8e6f2555d0"
+
 react-native-reanimated@1.0.0-alpha.10:
   version "1.0.0-alpha.10"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-1.0.0-alpha.10.tgz#e9e6fb35a2cf52fdc912b9fbc76f34f80698e530"
