@@ -42,30 +42,20 @@ const buttonStyle2 = {
 export default class Filters extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      shop: true,
-      paypass: false,
-      currency: 'rub',
-      work: true,
-      take: true,
-    };
   }
 
   setField = (fieldName, value) => {
-    const newState =  {
-      ...this.state,
+    const newFilters = {
+      ...this.props.filters,
       [fieldName]: value,
     };
-    this.setState(newState,
-      () => {
-        if (this.props.onChange) {
-          this.props.onChange(newState);
-        }
-      },
-    );
+    if (this.props.onChange) {
+      this.props.onChange(newFilters);
+    }
   };
   render() {
-    const { shop, paypass, currency, work, take } = this.state;
+    const { filters = {} } = this.props;
+    const { shop, paypass, currency, work, take } = filters;
     return (
       <View
         style={{
@@ -115,7 +105,12 @@ export default class Filters extends React.Component {
                 color={paypass ? '#fff' : '#e35205'}
               />
             </FilterButton>
-            <FilterRuble />
+            <FilterRuble
+              value={currency}
+              onChange={value => {
+                this.setField('currency', value);
+              }}
+            />
             <FilterButton
               isActive={work}
               onPress={() => {

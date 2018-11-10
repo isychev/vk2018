@@ -1,70 +1,183 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Dimensions,
-  Easing,
-  Animated,
-  Button,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { TouchableOpacity, View, Dimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import FilterButton from './FilterButton';
 
-import * as Animatable from 'react-native-animatable';
+import { TranslateYAndOpacity } from 'react-native-motion';
 
 const buttonStyle = {
   paddingTop: 20,
-  paddingRight: 15,
-  paddingBottom: 20,
-  paddingLeft: 15,
-  backgroundColor: '#eee',
-  borderRadius: 50,
-  borderWidth: 1,
-  borderColor: '#eee',
-};
-
-const activeButtonStyle = {
-  ...buttonStyle,
-  // position: 'absolute',
-  backgroundColor: '#0000ff',
-  borderRadius: 70,
-  paddingTop: 30,
   paddingRight: 23,
-  paddingBottom: 30,
+  paddingBottom: 20,
   paddingLeft: 23,
+  backgroundColor: '#e35205',
+  borderColor: '#e35205',
+  borderRadius: 53,
+  borderWidth: 1,
 };
 
-const textStyle = {
-  color: '#000',
-  textAlign: 'center',
+const openButtonStyle = {
+  ...buttonStyle,
+  backgroundColor: '#e35205',
+  borderColor: '#fff',
+  paddingTop: 33,
+  paddingBottom: 33,
+  paddingRight: 36,
+  paddingLeft: 36,
+  // marginTop: -20,
+  // marginBottom: -20,
+  // marginLeft: -20,
+  // marginRight: -20,
 };
-const activeTextStyle = {
-  color: '#fff',
-  textAlign: 'center',
+
+const smallButtonsStyle = {
+  paddingTop: 15,
+  paddingBottom: 15,
+  paddingRight: 18,
+  paddingLeft: 18,
 };
-export default class ButtonRUn extends React.Component {
+
+const deviceWidth = Dimensions.get('window').width;
+
+export default class ButtonRun extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isActive: false,
+      isOpen: false,
     };
   }
   handleClick = () => {
     this.setState({
-      isActive: !this.state.isActive,
+      isOpen: !this.state.isOpen,
     });
   };
+  handleChange = value => {
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    }
+    this.handleClick();
+  };
+  getIcon = () => {
+    const { value } = this.props;
+    if (value === 'walking') {
+      return 'run';
+    }
+    if (value === 'bicycling') {
+      return 'bike';
+    }
+    if (value === 'driving') {
+      return 'car';
+    }
+    return 'run';
+  };
   render() {
-    const { isActive } = this.state;
     return (
-      <TouchableOpacity
-        style={isActive ? activeButtonStyle : buttonStyle}
-        activeOpacity={0.5}
-        onPress={this.handleClick}
+      <View
+        style={{
+          position: 'absolute',
+          zIndex: 1,
+          bottom: 50,
+          left: deviceWidth / 2 - (this.state.isOpen ? 50 : 30),
+          // width: deviceWidth,
+          // backgroundColor: 'red',
+        }}
       >
-        <Text style={isActive ? activeTextStyle : textStyle}>SUB2</Text>
-      </TouchableOpacity>
+        <TranslateYAndOpacity
+          startOnDidMount
+          duration={2000}
+          translateYMin={50}
+        >
+          <View
+            style={{
+              zIndex: 5,
+              padding: this.state.isOpen ? 100 : 0,
+              margin: this.state.isOpen ? -100 : 0,
+              // backgroundColor: '#fff',
+            }}
+          >
+            {this.state.isOpen ? (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 60,
+                  width: 190,
+                  zIndex: 6,
+                  height: 100,
+                  // backgroundColor: '#000',
+                }}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    alignItems: 'center',
+                    zIndex: 6,
+                  }}
+                >
+                  <View
+                    style={{
+                      position: 'relative',
+                      top: 28,
+                      zIndex: 5,
+                    }}
+                  >
+                    <FilterButton
+                      activeStyle={smallButtonsStyle}
+                      isActive
+                      onPress={() => {
+                        this.handleChange('driving');
+                      }}
+                    >
+                      <Icon name="car" size={24} color="#fff" />
+                    </FilterButton>
+                  </View>
+                  <View style={{ zIndex: 5 }}>
+                    <FilterButton
+                      activeStyle={smallButtonsStyle}
+                      isActive
+                      onPress={() => {
+                        this.handleChange('walking');
+                      }}
+                    >
+                      <Icon name="run" size={24} color="#fff" />
+                    </FilterButton>
+                  </View>
+                  <View
+                    style={{
+                      position: 'relative',
+                      top: 28,
+                      zIndex: 5,
+                    }}
+                  >
+                    <FilterButton
+                      activeStyle={smallButtonsStyle}
+                      isActive
+                      onPress={() => {
+                        this.handleChange('bicycling');
+                      }}
+                    >
+                      <Icon name="bike" size={24} color="#fff" />
+                    </FilterButton>
+                  </View>
+                </View>
+              </View>
+            ) : null}
+            <TouchableOpacity
+              style={this.state.isOpen ? openButtonStyle : buttonStyle}
+              activeOpacity={0.7}
+              onPress={this.handleClick}
+            >
+              <Icon
+                name={this.getIcon()}
+                size={this.state.isOpen ? 40 : 29}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+        </TranslateYAndOpacity>
+      </View>
     );
   }
 }

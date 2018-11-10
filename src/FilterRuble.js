@@ -39,7 +39,7 @@ export default class FilterRuble extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: true,
+      isOpen: false,
     };
   }
   handleClick = () => {
@@ -47,16 +47,46 @@ export default class FilterRuble extends React.Component {
       isOpen: !this.state.isOpen,
     });
   };
+  handleChange = value => {
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    }
+    this.handleClick();
+  };
+  getIcon = () => {
+    const { value } = this.props;
+    if (value === 'rub') {
+      return 'ruble';
+    }
+    if (value === 'usd') {
+      return 'dollar';
+    }
+    if (value === 'eur') {
+      return 'euro';
+    }
+    return 'ruble';
+  };
+
   render() {
     return (
-      <View>
+      <View
+        style={{
+          zIndex: 5,
+          padding: this.state.isOpen ? 100 : 0,
+          margin: this.state.isOpen ? -100 : 0,
+          // backgroundColor: '#fff',
+        }}
+      >
         {this.state.isOpen ? (
           <View
             style={{
               position: 'absolute',
-              top: -95,
-              left: -60,
+              top: 0,
+              left: 40,
               width: 190,
+              zIndex: 6,
+              height: 100,
+              // backgroundColor: '#000',
             }}
           >
             <View
@@ -65,30 +95,32 @@ export default class FilterRuble extends React.Component {
                 flexDirection: 'row',
                 justifyContent: 'space-around',
                 alignItems: 'center',
+                zIndex: 6,
               }}
             >
               <View
                 style={{
                   position: 'relative',
                   top: 28,
+                  zIndex: 5,
                 }}
               >
                 <FilterButton
                   activeStyle={smallButtonsStyle}
                   isActive
                   onPress={() => {
-                    // this.setField('work', !work);
+                    this.handleChange('usd');
                   }}
                 >
                   <Icon name="dollar" size={18} color="#fff" />
                 </FilterButton>
               </View>
-              <View>
+              <View style={{ zIndex: 5 }}>
                 <FilterButton
                   activeStyle={smallButtonsStyle}
                   isActive
                   onPress={() => {
-                    // this.setField('work', !work);
+                    this.handleChange('rub');
                   }}
                 >
                   <Icon name="ruble" size={18} color="#fff" />
@@ -98,13 +130,14 @@ export default class FilterRuble extends React.Component {
                 style={{
                   position: 'relative',
                   top: 28,
+                  zIndex: 5,
                 }}
               >
                 <FilterButton
                   activeStyle={smallButtonsStyle}
                   isActive
                   onPress={() => {
-                    // this.setField('work', !work);
+                    this.handleChange('eur');
                   }}
                 >
                   <Icon name="euro" size={18} color="#fff" />
@@ -118,7 +151,11 @@ export default class FilterRuble extends React.Component {
           activeOpacity={0.7}
           onPress={this.handleClick}
         >
-          <Icon name="ruble" size={this.state.isOpen ? 40 : 29} color="#fff" />
+          <Icon
+            name={this.getIcon()}
+            size={this.state.isOpen ? 40 : 29}
+            color="#fff"
+          />
         </TouchableOpacity>
       </View>
     );

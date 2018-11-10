@@ -1,4 +1,4 @@
-export default {
+export default [{
     "type": "atm",
     "name": "Сбербанк",
     "timeWork": "Пн-вс 10:00-19:00",

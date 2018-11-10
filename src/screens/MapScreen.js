@@ -6,6 +6,7 @@ import {
   Dimensions,
   Easing,
   Animated,
+  Button,
 } from 'react-native';
 // import Compass from './compass';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -14,7 +15,9 @@ import MapViewDirections from 'react-native-maps-directions';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import { Permissions } from 'expo';
 import { GOOGLE_API_KEY, MASTER_CARD_KEY } from '../../appConstants';
+import ButtonRun from '../ButtonRun';
 import Filters from '../Filters';
+// import MARKERS from '../fixtures';
 
 const MAP_STYLES = [
   {
@@ -389,9 +392,20 @@ class MapScreen extends React.Component {
     super(props);
     this.spinValue = new Animated.Value(0);
     this.state = {
-      currentPosition: null,
-      filters: {},
+      currentPosition: {
+        latitude: 59.938962,
+        longitude: 30.318497,
+      },
+      selectedMarker: null,
+      filters: {
+        shop: true,
+        paypass: false,
+        currency: 'rub',
+        work: true,
+        take: true,
+      },
       filterMarkers: [],
+      typePath: 'walking',
     };
   }
 
@@ -406,18 +420,18 @@ class MapScreen extends React.Component {
 
   async componentDidMount() {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
-    navigator.geolocation.watchPosition(
-      lastPosition => {
-        this.setState({
-          currentPosition: {
-            latitude: lastPosition.coords.latitude,
-            longitude: lastPosition.coords.longitude,
-          },
-        });
-      },
-      error => {},
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
-    );
+    // navigator.geolocation.watchPosition(
+    //   lastPosition => {
+    //     this.setState({
+    //       currentPosition: {
+    //         latitude: lastPosition.coords.latitude,
+    //         longitude: lastPosition.coords.longitude,
+    //       },
+    //     });
+    //   },
+    //   error => {},
+    //   { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    // );
   }
 
   _getLocationAsync = async () => {
@@ -460,64 +474,96 @@ class MapScreen extends React.Component {
       });
     }, 1000);
   };
-
+  onChangeTypePath = typePath => {
+    const oldSelectedMarker = this.state.selectedMarker;
+    this.setState({
+      typePath,
+      selectedMarker: null,
+    });
+    setTimeout(() => {
+      this.setState({
+        selectedMarker: oldSelectedMarker,
+      });
+    }, 700);
+  };
   onChangeFilters = filters => {
     this.setState({
       filters,
       filterMarkers: this.getFiltermarkers(filters),
     });
   };
+  onSelectMarker = marker => {
+    const oldMarkers = this.state.filterMarkers;
+    this.setState({
+      selectedMarker: marker,
+      filterMarkers: [],
+    });
+    setTimeout(() => {
+      this.setState({
+        filterMarkers: oldMarkers,
+      });
+    }, 700);
+  };
   getFiltermarkers = filters =>
-    MARKERS.filter(marker => {
+    MARKERS.slice(-60).filter(marker => {
       const isBank = !filters.shop || (filters.shop && marker.type === 'shop');
       const isPaypass = !filters.paypass || (filters.paypass && marker.paypass);
       const isTake =
-        (filters.take && (marker.takeMoney && !marker.putMoney)) ||
-        (!filters.take && marker.takeMoney && marker.putMoney);
+        !filters.take ||
+        (filters.take && (marker.takeMoney && marker.putMoney));
       const isWork =
         !filters.work || (filters.work && marker.timeWork === 'Круглосуточно');
       return isBank && isPaypass && isTake && isWork;
-
-      /*
-       {
-    latitude: 59.931778,
-    longitude: 30.299191,
-    type: 'atm',
-    bank: 'Альфа-банк',
-    timeWork: '10:00-19:00',
-    paypass: true,
-    putMoney: true,
-    takeMoney: true,
-    currency: ['rub', 'usd', 'eur'],
-  },
-       */
     });
   renderMarkers = () =>
-    this.state.filterMarkers.map((marker, index) => (
-      <Marker
-        key={`${marker.latitude}${marker.longitude}${index}`}
-        coordinate={{
-          latitude: marker.latitude,
-          longitude: marker.longitude,
-        }}
-      >
-        <Callout>
-          <Text>{`Банк: ${marker.bank}`}</Text>
-          <Text>{`Время работы: ${marker.timeWork}`}</Text>
-        </Callout>
-      </Marker>
-    ));
+    this.state.filterMarkers.map((marker, index) => {
+      const ref = null;
+      return (
+        <Marker
+          key={`${marker.latitude}${marker.longitude}${index}`}
+          coordinate={{
+            latitude: marker.latitude,
+            longitude: marker.longitude,
+          }}
+          calloutVisible={!this.state.selectedMarker}
+        >
+          <Callout
+            onPress={() => {
+              this.onSelectMarker(marker);
+            }}
+          >
+            <View
+              style={{
+                padding: 5,
+              }}
+            >
+              <Text>{`Банк: ${marker.bank || marker.name}`}</Text>
+              <Text>{`Время работы: ${marker.timeWork}`}</Text>
+              <Button
+                title="Маршрут"
+                onPress={() => {
+                  this.onSelectMarker(marker);
+                }}
+              />
+            </View>
+          </Callout>
+        </Marker>
+      );
+    });
   render() {
     const { width, height } = Dimensions.get('window');
     const spin = this.spinValue.interpolate({
       inputRange: [0, 360],
       outputRange: ['-0deg', '-360deg'],
     });
-    const { mapReady } = this.state;
+    const { mapReady, filters, selectedMarker, typePath } = this.state;
     return (
       <View style={styles.container}>
-        {mapReady  ? (
-          <Filters onChange={this.onChangeFilters} />
+        {mapReady && !selectedMarker ? (
+          <Filters onChange={this.onChangeFilters} filters={filters} />
+        ) : null}
+        {selectedMarker ? (
+          <ButtonRun onChange={this.onChangeTypePath} value={typePath} />
         ) : null}
 
         <View
@@ -563,16 +609,23 @@ class MapScreen extends React.Component {
                   </Animated.View>
                 </View>
               </Marker>
-              <MapViewDirections
-                origin={this.state.currentPosition}
-                destination={{
-                  latitude: this.state.currentPosition.latitude,
-                  longitude: this.state.currentPosition.longitude - 0.8,
-                }}
-                strokeWidth={6}
-                strokeColor="#736466"
-                apikey={GOOGLE_API_KEY}
-              />
+              {selectedMarker ? (
+                <MapViewDirections
+                  mode={
+                    this.state.typePath === 'bicycling'
+                      ? 'walking'
+                      : this.state.typePath
+                  }
+                  origin={this.state.currentPosition}
+                  destination={{
+                    latitude: selectedMarker.latitude,
+                    longitude: selectedMarker.longitude,
+                  }}
+                  strokeWidth={6}
+                  strokeColor="#736466"
+                  apikey={GOOGLE_API_KEY}
+                />
+              ) : null}
             </MapView>
           ) : null}
         </View>
