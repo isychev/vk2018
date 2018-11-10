@@ -20,10 +20,10 @@ const openButtonStyle = {
   ...buttonStyle,
   backgroundColor: '#e35205',
   borderColor: '#fff',
-  paddingTop: 33,
-  paddingBottom: 33,
-  paddingRight: 36,
-  paddingLeft: 36,
+  paddingTop: 31,
+  paddingBottom: 31,
+  paddingRight: 34,
+  paddingLeft: 34,
   // marginTop: -20,
   // marginBottom: -20,
   // marginLeft: -20,
@@ -33,8 +33,8 @@ const openButtonStyle = {
 const smallButtonsStyle = {
   paddingTop: 15,
   paddingBottom: 15,
-  paddingRight: 18,
-  paddingLeft: 18,
+  paddingRight: 16,
+  paddingLeft: 16,
 };
 
 const deviceWidth = Dimensions.get('window').width;
@@ -82,11 +82,7 @@ export default class ButtonRun extends React.Component {
           // backgroundColor: 'red',
         }}
       >
-        <TranslateYAndOpacity
-          startOnDidMount
-          duration={2000}
-          translateYMin={50}
-        >
+        <TranslateYAndOpacity startOnDidMount duration={100} translateYMin={50}>
           <View
             style={{
               zIndex: 5,
@@ -96,77 +92,74 @@ export default class ButtonRun extends React.Component {
             }}
           >
             {this.state.isOpen ? (
-              <TranslateYAndOpacity
-                startOnDidMount
-                translateYMin={50}
-              >
-              <View
-                style={{
-                  position: 'absolute',
-                  top: -100,
-                  left: -36,
-                  width: 190,
-                  zIndex: 6,
-                  height: 100,
-                  // backgroundColor: '#000',
-                }}
-              >
+              <TranslateYAndOpacity startOnDidMount translateYMin={50}>
                 <View
                   style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
+                    position: 'absolute',
+                    top: -100,
+                    left: -38,
+                    width: 190,
                     zIndex: 6,
+                    height: 100,
+                    // backgroundColor: '#000',
                   }}
                 >
                   <View
                     style={{
-                      position: 'relative',
-                      top: 28,
-                      zIndex: 5,
+                      flex: 1,
+                      flexDirection: 'row',
+                      justifyContent: 'space-around',
+                      alignItems: 'center',
+                      zIndex: 6,
                     }}
                   >
-                    <FilterButton
-                      activeStyle={smallButtonsStyle}
-                      isActive
-                      onPress={() => {
-                        this.handleChange('driving');
+                    <View
+                      style={{
+                        position: 'relative',
+                        top: 28,
+                        zIndex: 5,
                       }}
                     >
-                      <Icon name="car" size={24} color="#fff" />
-                    </FilterButton>
-                  </View>
-                  <View style={{ zIndex: 5 }}>
-                    <FilterButton
-                      activeStyle={smallButtonsStyle}
-                      isActive
-                      onPress={() => {
-                        this.handleChange('walking');
+                      <FilterButton
+                        activeStyle={smallButtonsStyle}
+                        isActive
+                        onPress={() => {
+                          this.handleChange('driving');
+                        }}
+                      >
+                        <Icon name="car" size={24} color="#fff" />
+                      </FilterButton>
+                    </View>
+                    <View style={{ zIndex: 5 }}>
+                      <FilterButton
+                        activeStyle={smallButtonsStyle}
+                        isActive
+                        onPress={() => {
+                          this.handleChange('walking');
+                        }}
+                      >
+                        <Icon name="run" size={24} color="#fff" />
+                      </FilterButton>
+                    </View>
+                    <View
+                      style={{
+                        position: 'relative',
+                        top: 28,
+                        zIndex: 5,
                       }}
                     >
-                      <Icon name="run" size={24} color="#fff" />
-                    </FilterButton>
-                  </View>
-                  <View
-                    style={{
-                      position: 'relative',
-                      top: 28,
-                      zIndex: 5,
-                    }}
-                  >
-                    <FilterButton
-                      activeStyle={smallButtonsStyle}
-                      isActive
-                      onPress={() => {
-                        this.handleChange('bicycling');
-                      }}
-                    >
-                      <Icon name="bike" size={24} color="#fff" />
-                    </FilterButton>
+                      <FilterButton
+                        activeStyle={smallButtonsStyle}
+                        isActive
+                        onPress={() => {
+                          this.handleChange('bicycling');
+                        }}
+                      >
+                        <Icon name="bike" size={24} color="#fff" />
+                      </FilterButton>
+                    </View>
                   </View>
                 </View>
-              </View>
               </TranslateYAndOpacity>
             ) : null}
             <TouchableOpacity

@@ -479,11 +479,13 @@ class MapScreen extends React.Component {
     const oldSelectedMarker = this.state.selectedMarker;
     this.setState({
       typePath,
-      selectedMarker: null,
+      // selectedMarker: null,
+      repaintRun: true,
     });
     setTimeout(() => {
       this.setState({
-        selectedMarker: oldSelectedMarker,
+        // selectedMarker: oldSelectedMarker,
+        repaintRun: false,
       });
     }, 700);
   };
@@ -542,6 +544,7 @@ class MapScreen extends React.Component {
                 marker.type === 'shop' ? 'Магазин' : 'Банк'
               }: ${marker.bank || marker.name}`}</Text>
               <Text>{`Время работы: ${marker.timeWork}`}</Text>
+              <Text>{`Путь: 4 мин`}</Text>
               <Button
                 title="Маршрут"
                 onPress={() => {
@@ -559,10 +562,16 @@ class MapScreen extends React.Component {
       inputRange: [0, 360],
       outputRange: ['-0deg', '-360deg'],
     });
-    const { mapReady, filters, selectedMarker, typePath } = this.state;
+    const {
+      mapReady,
+      filters,
+      selectedMarker,
+      typePath,
+      repaintRun,
+    } = this.state;
     return (
       <View style={styles.container}>
-        {mapReady && !selectedMarker ? (
+        {mapReady && !selectedMarker && !repaintRun ? (
           <Filters onChange={this.onChangeFilters} filters={filters} />
         ) : null}
         {selectedMarker ? (
@@ -576,9 +585,9 @@ class MapScreen extends React.Component {
         >
           {this.state.currentPosition ? (
             <MapView
-              zoomControlEnabled
-              followsUserLocation
-              showsMyLocationButton
+              // zoomControlEnabled
+              // followsUserLocation
+              // showsMyLocationButton
               onMapReady={this.onMapReady}
               mapType="standard"
               provider={PROVIDER_GOOGLE}
@@ -613,7 +622,7 @@ class MapScreen extends React.Component {
                   </Animated.View>
                 </View>
               </Marker>
-              {selectedMarker ? (
+              {selectedMarker && !repaintRun ? (
                 <MapViewDirections
                   mode={
                     this.state.typePath === 'bicycling'
