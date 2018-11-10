@@ -421,18 +421,20 @@ class MapScreen extends React.Component {
 
   async componentDidMount() {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
-    // navigator.geolocation.watchPosition(
-    //   lastPosition => {
-    //     this.setState({
-    //       currentPosition: {
-    //         latitude: lastPosition.coords.latitude,
-    //         longitude: lastPosition.coords.longitude,
-    //       },
-    //     });
-    //   },
-    //   error => {},
-    //   { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
-    // );
+    navigator.geolocation.watchPosition(
+      lastPosition => {
+        if (lastPosition.coords && lastPosition.coords.longitude > 28) {
+          this.setState({
+            currentPosition: {
+              latitude: lastPosition.coords.latitude,
+              longitude: lastPosition.coords.longitude,
+            },
+          });
+        }
+      },
+      error => {},
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    );
   }
 
   _getLocationAsync = async () => {
@@ -544,7 +546,7 @@ class MapScreen extends React.Component {
                 marker.type === 'shop' ? 'Магазин' : 'Банк'
               }: ${marker.bank || marker.name}`}</Text>
               <Text>{`Время работы: ${marker.timeWork}`}</Text>
-              <Text>{`Путь: 4 мин`}</Text>
+              <Text>Путь: 4 мин</Text>
               <Button
                 title="Маршрут"
                 onPress={() => {
