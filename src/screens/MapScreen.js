@@ -10,11 +10,101 @@ import {
 // import Compass from './compass';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MapViewDirections from 'react-native-maps-directions';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import { Permissions } from 'expo';
-import { GOOGLE_API_KEY } from '../../appConstants';
+import { GOOGLE_API_KEY, MASTER_CARD_KEY } from '../../appConstants';
 
-// console.warn(NativeModules.RNGoogleFit)
+const MAP_STYLES = [
+  {
+    featureType: 'administrative.country',
+    elementType: 'geometry',
+    stylers: [
+      {
+        visibility: 'on',
+      },
+      {
+        hue: '#ff0000',
+      },
+    ],
+  },
+  {
+    featureType: 'administrative.country',
+    elementType: 'geometry.stroke',
+    stylers: [
+      {
+        visibility: 'on',
+      },
+      {
+        hue: '#ff0000',
+      },
+    ],
+  },
+  {
+    featureType: 'administrative.country',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        visibility: 'on',
+      },
+    ],
+  },
+  {
+    featureType: 'administrative.province',
+    elementType: 'geometry.fill',
+    stylers: [
+      {
+        visibility: 'on',
+      },
+    ],
+  },
+];
+
+const MARKERS = [
+  {
+    latitude: 59.938578,
+    longitude: 30.322943,
+    type: 'atm',
+    bank: 'Альфа-банк',
+    timeWork: '10:00-19:00',
+    paypass: true,
+    putMoney: true,
+    takeMoney: true,
+    currency: ['rub', 'usd', 'eur'],
+  },
+  {
+    latitude: 59.938741,
+    longitude: 30.323916,
+    type: 'atm',
+    bank: 'Промсвязьбанк',
+    timeWork: 'Круглосуточно',
+    paypass: false,
+    putMoney: true,
+    takeMoney: true,
+    currency: ['rub'],
+  },
+  {
+    latitude: 59.938251,
+    longitude: 30.322091,
+    type: 'atm',
+    bank: 'РайффайзенБанк',
+    timeWork: '10:00-21:00',
+    paypass: true,
+    putMoney: true,
+    takeMoney: true,
+    currency: ['rub', 'usd', 'eur'],
+  },
+  {
+    latitude: 59.939194,
+    longitude: 30.323876,
+    type: 'atm',
+    bank: 'Авангард Банк',
+    timeWork: '10:30-19:30',
+    paypass: false,
+    putMoney: true,
+    takeMoney: true,
+    currency: ['rub'],
+  },
+];
 
 class MapScreen extends React.Component {
   constructor(props) {
@@ -37,7 +127,8 @@ class MapScreen extends React.Component {
   //   this.spin();
   // }
 
-  componentDidMount() {
+  async componentDidMount() {
+    const { status } = await Permissions.askAsync(Permissions.LOCATION);
     navigator.geolocation.watchPosition(
       lastPosition => {
         this.setState({
@@ -85,7 +176,20 @@ class MapScreen extends React.Component {
       easing: Easing.easeInOut,
     }).start();
   }
-
+  renderMarkers = () =>
+    MARKERS.map(marker => (
+      <Marker
+        coordinate={{
+          latitude: marker.latitude,
+          longitude: marker.longitude,
+        }}
+      >
+        <Callout>
+          <Text>{`Банк: ${marker.bank}`}</Text>
+          <Text>{`Время работы: ${marker.timeWork}`}</Text>
+        </Callout>
+      </Marker>
+    ));
   render() {
     const { width, height } = Dimensions.get('window');
     const spin = this.spinValue.interpolate({
@@ -97,6 +201,9 @@ class MapScreen extends React.Component {
         <Text>{`spin ${Object.keys(spin).join(' ')}`}</Text>
         {this.state.currentPosition ? (
           <MapView
+            mapType="standard"
+            provider={PROVIDER_GOOGLE}
+            customMapStyle={MAP_STYLES}
             style={{
               flex: 1,
               backgroundColor: 'black',
@@ -109,8 +216,8 @@ class MapScreen extends React.Component {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
-            ref={c => (this.mapView = c)}
           >
+            {this.renderMarkers()}
             <Marker
               coordinate={this.state.currentPosition}
               title="marker.title"
