@@ -17,6 +17,7 @@ import { Permissions } from 'expo';
 import { GOOGLE_API_KEY, MASTER_CARD_KEY } from '../../appConstants';
 import ButtonRun from '../ButtonRun';
 import Filters from '../Filters';
+import { TranslateYAndOpacity } from 'react-native-motion';
 // import MARKERS from '../fixtures';
 
 const MAP_STYLES = [
@@ -224,7 +225,7 @@ const MARKERS = [
     latitude: 59.946691,
     longitude: 30.362345,
     type: 'shop',
-    bank: 'Сбербанк',
+    bank: 'Фасоль',
     timeWork: 'пн - вск 9:00-20:00',
     paypass: true,
     putMoney: false,
@@ -235,7 +236,7 @@ const MARKERS = [
     latitude: 59.935649,
     longitude: 30.372108,
     type: 'shop',
-    bank: 'МТС Банк',
+    bank: 'Фасоль',
     timeWork: 'Круглосуточно',
     paypass: true,
     putMoney: true,
@@ -257,7 +258,7 @@ const MARKERS = [
     latitude: 59.929535,
     longitude: 30.320732,
     type: 'shop',
-    bank: 'РайффайзенБанк',
+    bank: 'Фасоль',
     timeWork: 'Круглосуточно',
     paypass: true,
     putMoney: true,
@@ -279,7 +280,7 @@ const MARKERS = [
     latitude: 59.926877,
     longitude: 30.334091,
     type: 'shop',
-    bank: 'Банк ФК Открытие',
+    bank: 'Фасоль',
     timeWork: 'Круглосуточно',
     paypass: false,
     putMoney: true,
@@ -420,18 +421,20 @@ class MapScreen extends React.Component {
 
   async componentDidMount() {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
-    // navigator.geolocation.watchPosition(
-    //   lastPosition => {
-    //     this.setState({
-    //       currentPosition: {
-    //         latitude: lastPosition.coords.latitude,
-    //         longitude: lastPosition.coords.longitude,
-    //       },
-    //     });
-    //   },
-    //   error => {},
-    //   { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
-    // );
+    navigator.geolocation.watchPosition(
+      lastPosition => {
+        if (lastPosition.coords && lastPosition.coords.longitude > 28) {
+          this.setState({
+            currentPosition: {
+              latitude: lastPosition.coords.latitude,
+              longitude: lastPosition.coords.longitude,
+            },
+          });
+        }
+      },
+      error => {},
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    );
   }
 
   _getLocationAsync = async () => {
@@ -478,11 +481,13 @@ class MapScreen extends React.Component {
     const oldSelectedMarker = this.state.selectedMarker;
     this.setState({
       typePath,
-      selectedMarker: null,
+      // selectedMarker: null,
+      repaintRun: true,
     });
     setTimeout(() => {
       this.setState({
-        selectedMarker: oldSelectedMarker,
+        // selectedMarker: oldSelectedMarker,
+        repaintRun: false,
       });
     }, 700);
   };
@@ -537,8 +542,11 @@ class MapScreen extends React.Component {
                 padding: 5,
               }}
             >
-              <Text>{`Банк: ${marker.bank || marker.name}`}</Text>
+              <Text>{`${
+                marker.type === 'shop' ? 'Магазин' : 'Банк'
+              }: ${marker.bank || marker.name}`}</Text>
               <Text>{`Время работы: ${marker.timeWork}`}</Text>
+              <Text>Путь: 4 мин</Text>
               <Button
                 title="Маршрут"
                 onPress={() => {
@@ -556,10 +564,16 @@ class MapScreen extends React.Component {
       inputRange: [0, 360],
       outputRange: ['-0deg', '-360deg'],
     });
-    const { mapReady, filters, selectedMarker, typePath } = this.state;
+    const {
+      mapReady,
+      filters,
+      selectedMarker,
+      typePath,
+      repaintRun,
+    } = this.state;
     return (
       <View style={styles.container}>
-        {mapReady && !selectedMarker ? (
+        {mapReady && !selectedMarker && !repaintRun ? (
           <Filters onChange={this.onChangeFilters} filters={filters} />
         ) : null}
         {selectedMarker ? (
@@ -573,8 +587,9 @@ class MapScreen extends React.Component {
         >
           {this.state.currentPosition ? (
             <MapView
-              followsUserLocation
-              showsMyLocationButton
+              // zoomControlEnabled
+              // followsUserLocation
+              // showsMyLocationButton
               onMapReady={this.onMapReady}
               mapType="standard"
               provider={PROVIDER_GOOGLE}
@@ -609,7 +624,7 @@ class MapScreen extends React.Component {
                   </Animated.View>
                 </View>
               </Marker>
-              {selectedMarker ? (
+              {selectedMarker && !repaintRun ? (
                 <MapViewDirections
                   mode={
                     this.state.typePath === 'bicycling'

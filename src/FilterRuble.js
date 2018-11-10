@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FilterButton from './FilterButton';
+import { TranslateYAndOpacity } from 'react-native-motion';
 
 const buttonStyle = {
   paddingTop: 20,
@@ -78,11 +79,15 @@ export default class FilterRuble extends React.Component {
         }}
       >
         {this.state.isOpen ? (
+          <TranslateYAndOpacity
+            startOnDidMount
+            translateYMin={50}
+          >
           <View
             style={{
               position: 'absolute',
-              top: 0,
-              left: 40,
+              top: -110,
+              left: -56,
               width: 190,
               zIndex: 6,
               height: 100,
@@ -145,6 +150,7 @@ export default class FilterRuble extends React.Component {
               </View>
             </View>
           </View>
+          </TranslateYAndOpacity>
         ) : null}
         <TouchableOpacity
           style={this.state.isOpen ? openButtonStyle : buttonStyle}
