@@ -7,14 +7,12 @@ import {
   Easing,
   Animated,
 } from 'react-native';
-// import Compass from './compass';
+
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MapViewDirections from 'react-native-maps-directions';
 import MapView, { Marker } from 'react-native-maps';
 import { Permissions } from 'expo';
 import { GOOGLE_API_KEY } from './appConstants';
-
-// console.warn(NativeModules.RNGoogleFit)
 
 export default class App extends React.Component {
   constructor(props) {
@@ -25,12 +23,8 @@ export default class App extends React.Component {
     };
   }
   componentWillMount() {
-    this._getLocationAsync();
+    this.getLocationAsync();
   }
-
-  // componentWillUpdate() {
-  //   this.spin();
-  // }
 
   componentDidMount() {
     navigator.geolocation.watchPosition(
@@ -42,12 +36,12 @@ export default class App extends React.Component {
           },
         });
       },
-      error => alert(JSON.stringify(error)),
+      () => {},
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
     );
   }
 
-  _getLocationAsync = async () => {
+  getLocationAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
       this.setState({
@@ -87,9 +81,16 @@ export default class App extends React.Component {
       inputRange: [0, 360],
       outputRange: ['-0deg', '-360deg'],
     });
+    const { errorMessage } = this.state;
+    if (errorMessage) {
+      return (
+        <View>
+          <Text>{errorMessage}</Text>
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
-        <Text>{`spin ${Object.keys(spin).join(' ')}`}</Text>
         {this.state.currentPosition ? (
           <MapView
             style={{
@@ -104,7 +105,6 @@ export default class App extends React.Component {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
-            ref={c => (this.mapView = c)}
           >
             <Marker
               coordinate={this.state.currentPosition}
@@ -113,15 +113,14 @@ export default class App extends React.Component {
             >
               <View>
                 <Animated.View
-                  resizeMode='contain'
+                  resizeMode="contain"
                   style={{
                     transform: [{ rotate: spin }],
                   }}
                 >
-                  <Icon name="rocket" size={30} color="#900" />
+                  <Icon name="location-arrow" size={29} color="#900" />
                 </Animated.View>
               </View>
-
             </Marker>
             <MapViewDirections
               origin={this.state.currentPosition}
@@ -134,19 +133,12 @@ export default class App extends React.Component {
               apikey={GOOGLE_API_KEY}
             />
           </MapView>
-        ) : null}
-        {this.state.currentPosition ? (
+        ) : (
           <View>
-            <Animated.View
-              resizeMode='contain'
-              style={{
-                transform: [{ rotate: spin }],
-              }}
-            >
-              <Icon name="rocket" size={30} color="#900" />
-            </Animated.View>
+            <Text>Loading....</Text>
           </View>
-        ) : null}
+        )}
+        {this.state.currentPosition ? <View /> : null}
       </View>
     );
   }
