@@ -1,8 +1,17 @@
 import React from 'react';
-// import { MapView, Marker } from 'expo';
-import { StyleSheet, Text, View,Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  Easing,
+  Animated,
+} from 'react-native';
+// import Compass from './compass';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import MapViewDirections from 'react-native-maps-directions';
 import MapView, { Marker } from 'react-native-maps';
+import { Permissions } from 'expo';
 import { GOOGLE_API_KEY } from './appConstants';
 
 // console.warn(NativeModules.RNGoogleFit)
@@ -10,11 +19,18 @@ import { GOOGLE_API_KEY } from './appConstants';
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-
+    this.spinValue = new Animated.Value(0);
     this.state = {
       currentPosition: null,
     };
   }
+  componentWillMount() {
+    this._getLocationAsync();
+  }
+
+  // componentWillUpdate() {
+  //   this.spin();
+  // }
 
   componentDidMount() {
     navigator.geolocation.watchPosition(
@@ -31,21 +47,56 @@ export default class App extends React.Component {
     );
   }
 
+  _getLocationAsync = async () => {
+    const { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    } else {
+      Expo.Location.watchHeadingAsync(obj => {
+        const heading = obj.magHeading;
+        this.setState({ heading });
+        this.spin();
+      });
+    }
+  };
+
+  spin() {
+    const start = JSON.stringify(this.spinValue);
+    const heading = Math.round(this.state.heading);
+
+    let rot = +start;
+    const rotM = rot % 360;
+
+    if (rotM < 180 && heading > rotM + 180) rot -= 360;
+    if (rotM >= 180 && heading <= rotM - 180) rot += 360;
+
+    rot += heading - rotM;
+
+    Animated.timing(this.spinValue, {
+      toValue: rot,
+      duration: 300,
+      easing: Easing.easeInOut,
+    }).start();
+  }
+
   render() {
-    const origin = { latitude: 37.3318456, longitude: -122.0296002 };
-    const destination = { latitude: 37.771707, longitude: -122.4053769 };
     const { width, height } = Dimensions.get('window');
-    console.log('was');
+    const spin = this.spinValue.interpolate({
+      inputRange: [0, 360],
+      outputRange: ['-0deg', '-360deg'],
+    });
     return (
       <View style={styles.container}>
-        <Text>was 123</Text>
+        <Text>{`spin ${Object.keys(spin).join(' ')}`}</Text>
         {this.state.currentPosition ? (
           <MapView
             style={{
               flex: 1,
               backgroundColor: 'black',
-              width: 500,
-              height: 500,
+              width,
+              height,
             }}
             initialRegion={{
               latitude: this.state.currentPosition.latitude,
@@ -53,13 +104,25 @@ export default class App extends React.Component {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
-            ref={c => this.mapView = c}
+            ref={c => (this.mapView = c)}
           >
             <Marker
               coordinate={this.state.currentPosition}
               title="marker.title"
               description="marker.description"
-            />
+            >
+              <View>
+                <Animated.View
+                  resizeMode='contain'
+                  style={{
+                    transform: [{ rotate: spin }],
+                  }}
+                >
+                  <Icon name="rocket" size={30} color="#900" />
+                </Animated.View>
+              </View>
+
+            </Marker>
             <MapViewDirections
               origin={this.state.currentPosition}
               destination={{
@@ -69,31 +132,20 @@ export default class App extends React.Component {
               strokeWidth={3}
               strokeColor="black"
               apikey={GOOGLE_API_KEY}
-              onStart={(params) => {
-                console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
-              }}
-              onReady={(result) => {
-                console.log('onREADY 123');
-                console.log(result);
-                // this.mapView.fitToCoordinates(result.coordinates, {
-                //   edgePadding: {
-                //     right: (width / 20),
-                //     bottom: (height / 20),
-                //     left: (width / 20),
-                //     top: (height / 20),
-                //   }
-                // });
-              }}
-              onError={(errorMessage) => {
-                console.log('GOT AN ERROR');
-              }}
             />
           </MapView>
         ) : null}
         {this.state.currentPosition ? (
-          <Text>{`${this.state.currentPosition.latitude} ${
-            this.state.currentPosition.longitude
-          }`}</Text>
+          <View>
+            <Animated.View
+              resizeMode='contain'
+              style={{
+                transform: [{ rotate: spin }],
+              }}
+            >
+              <Icon name="rocket" size={30} color="#900" />
+            </Animated.View>
+          </View>
         ) : null}
       </View>
     );
