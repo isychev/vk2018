@@ -6,6 +6,8 @@ import {
   Dimensions,
   Easing,
   Animated,
+  ScrollView,
+  Button,
 } from 'react-native';
 // import Compass from './compass';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -13,6 +15,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import { Permissions } from 'expo';
 import { GOOGLE_API_KEY, MASTER_CARD_KEY } from '../../appConstants';
+import Filters from '../Filters';
 
 const MAP_STYLES = [
   {
@@ -176,6 +179,7 @@ class MapScreen extends React.Component {
       easing: Easing.easeInOut,
     }).start();
   }
+
   renderMarkers = () =>
     MARKERS.map(marker => (
       <Marker
@@ -190,6 +194,7 @@ class MapScreen extends React.Component {
         </Callout>
       </Marker>
     ));
+
   render() {
     const { width, height } = Dimensions.get('window');
     const spin = this.spinValue.interpolate({
@@ -199,65 +204,60 @@ class MapScreen extends React.Component {
     return (
       <View style={styles.container}>
         <Text>{`spin ${Object.keys(spin).join(' ')}`}</Text>
-        {this.state.currentPosition ? (
-          <MapView
-            mapType="standard"
-            provider={PROVIDER_GOOGLE}
-            customMapStyle={MAP_STYLES}
-            style={{
-              flex: 1,
-              backgroundColor: 'black',
-              width,
-              height,
-            }}
-            initialRegion={{
-              latitude: this.state.currentPosition.latitude,
-              longitude: this.state.currentPosition.longitude,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-          >
-            {this.renderMarkers()}
-            <Marker
-              coordinate={this.state.currentPosition}
-              title="marker.title"
-              description="marker.description"
-            >
-              <View>
-                <Animated.View
-                  resizeMode="contain"
-                  style={{
-                    transform: [{ rotate: spin }],
-                  }}
-                >
-                  <Icon name="rocket" size={30} color="#900" />
-                </Animated.View>
-              </View>
-            </Marker>
-            <MapViewDirections
-              origin={this.state.currentPosition}
-              destination={{
-                latitude: this.state.currentPosition.latitude,
-                longitude: this.state.currentPosition.longitude - 0.8,
-              }}
-              strokeWidth={3}
-              strokeColor="black"
-              apikey={GOOGLE_API_KEY}
-            />
-          </MapView>
-        ) : null}
-        {this.state.currentPosition ? (
-          <View>
-            <Animated.View
-              resizeMode="contain"
+        <Filters/>
+        <View
+          style={{
+            zIndex: 0,
+          }}
+        >
+          {this.state.currentPosition ? (
+            <MapView
+              mapType="standard"
+              provider={PROVIDER_GOOGLE}
+              customMapStyle={MAP_STYLES}
               style={{
-                transform: [{ rotate: spin }],
+                flex: 1,
+                backgroundColor: 'black',
+                width,
+                height,
+              }}
+              initialRegion={{
+                latitude: this.state.currentPosition.latitude,
+                longitude: this.state.currentPosition.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
               }}
             >
-              <Icon name="rocket" size={30} color="#900" />
-            </Animated.View>
-          </View>
-        ) : null}
+              {this.renderMarkers()}
+              <Marker
+                coordinate={this.state.currentPosition}
+                title="marker.title"
+                description="marker.description"
+              >
+                <View>
+                  <Animated.View
+                    resizeMode="contain"
+                    style={{
+                      transform: [{ rotate: spin }],
+                    }}
+                  >
+                    <Icon name="rocket" size={30} color="#900" />
+                  </Animated.View>
+                </View>
+              </Marker>
+              <MapViewDirections
+                origin={this.state.currentPosition}
+                destination={{
+                  latitude: this.state.currentPosition.latitude,
+                  longitude: this.state.currentPosition.longitude - 0.8,
+                }}
+                strokeWidth={3}
+                strokeColor="black"
+                apikey={GOOGLE_API_KEY}
+              />
+            </MapView>
+          ) : null}
+        </View>
       </View>
     );
   }
