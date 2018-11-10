@@ -603,8 +603,8 @@ class MapScreen extends React.Component {
               initialRegion={{
                 latitude: this.state.currentPosition.latitude,
                 longitude: this.state.currentPosition.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
+                latitudeDelta: 0.03,
+                longitudeDelta: 0.03,
               }}
             >
               {this.renderMarkers()}
@@ -620,7 +620,9 @@ class MapScreen extends React.Component {
                       transform: [{ rotate: spin }],
                     }}
                   >
-                    <Icon name="location-arrow" size={40} color="#e35205" />
+                    <View style={{ width: 40, height: 40 }}>
+                      <Icon name="location-arrow" size={40} color="#e35205" />
+                    </View>
                   </Animated.View>
                 </View>
               </Marker>
