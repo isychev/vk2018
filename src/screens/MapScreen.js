@@ -17,6 +17,7 @@ import { Permissions } from 'expo';
 import { GOOGLE_API_KEY, MASTER_CARD_KEY } from '../../appConstants';
 import ButtonRun from '../ButtonRun';
 import Filters from '../Filters';
+import { TranslateYAndOpacity } from 'react-native-motion';
 // import MARKERS from '../fixtures';
 
 const MAP_STYLES = [
@@ -224,7 +225,7 @@ const MARKERS = [
     latitude: 59.946691,
     longitude: 30.362345,
     type: 'shop',
-    bank: 'Сбербанк',
+    bank: 'Фасоль',
     timeWork: 'пн - вск 9:00-20:00',
     paypass: true,
     putMoney: false,
@@ -235,7 +236,7 @@ const MARKERS = [
     latitude: 59.935649,
     longitude: 30.372108,
     type: 'shop',
-    bank: 'МТС Банк',
+    bank: 'Фасоль',
     timeWork: 'Круглосуточно',
     paypass: true,
     putMoney: true,
@@ -257,7 +258,7 @@ const MARKERS = [
     latitude: 59.929535,
     longitude: 30.320732,
     type: 'shop',
-    bank: 'РайффайзенБанк',
+    bank: 'Фасоль',
     timeWork: 'Круглосуточно',
     paypass: true,
     putMoney: true,
@@ -279,7 +280,7 @@ const MARKERS = [
     latitude: 59.926877,
     longitude: 30.334091,
     type: 'shop',
-    bank: 'Банк ФК Открытие',
+    bank: 'Фасоль',
     timeWork: 'Круглосуточно',
     paypass: false,
     putMoney: true,
@@ -537,7 +538,9 @@ class MapScreen extends React.Component {
                 padding: 5,
               }}
             >
-              <Text>{`Банк: ${marker.bank || marker.name}`}</Text>
+              <Text>{`${
+                marker.type === 'shop' ? 'Магазин' : 'Банк'
+              }: ${marker.bank || marker.name}`}</Text>
               <Text>{`Время работы: ${marker.timeWork}`}</Text>
               <Button
                 title="Маршрут"
@@ -573,6 +576,7 @@ class MapScreen extends React.Component {
         >
           {this.state.currentPosition ? (
             <MapView
+              zoomControlEnabled
               followsUserLocation
               showsMyLocationButton
               onMapReady={this.onMapReady}

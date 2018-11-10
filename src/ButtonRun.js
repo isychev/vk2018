@@ -96,11 +96,15 @@ export default class ButtonRun extends React.Component {
             }}
           >
             {this.state.isOpen ? (
+              <TranslateYAndOpacity
+                startOnDidMount
+                translateYMin={50}
+              >
               <View
                 style={{
                   position: 'absolute',
-                  top: 0,
-                  left: 60,
+                  top: -100,
+                  left: -36,
                   width: 190,
                   zIndex: 6,
                   height: 100,
@@ -163,6 +167,7 @@ export default class ButtonRun extends React.Component {
                   </View>
                 </View>
               </View>
+              </TranslateYAndOpacity>
             ) : null}
             <TouchableOpacity
               style={this.state.isOpen ? openButtonStyle : buttonStyle}
