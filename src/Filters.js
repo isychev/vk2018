@@ -81,6 +81,12 @@ export default class Filters extends React.Component {
               alignItems: 'center',
             }}
           >
+          <View
+            style={{
+              zIndex: 100,
+              position: 'fixed',
+            }}
+          >
             <FilterButton
               isActive={shop}
               onPress={() => {
@@ -93,6 +99,7 @@ export default class Filters extends React.Component {
                 color={shop ? '#fff' : '#e35205'}
               />
             </FilterButton>
+            </View>
             <FilterButton
               isActive={paypass}
               onPress={() => {

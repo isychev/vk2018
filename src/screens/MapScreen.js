@@ -18,6 +18,7 @@ import { GOOGLE_API_KEY, MASTER_CARD_KEY } from '../../appConstants';
 import ButtonRun from '../ButtonRun';
 import Filters from '../Filters';
 import { TranslateYAndOpacity } from 'react-native-motion';
+import Walktrought from '../Walktrought';
 // import MARKERS from '../fixtures';
 
 const MAP_STYLES = [
@@ -407,6 +408,7 @@ class MapScreen extends React.Component {
       },
       filterMarkers: [],
       typePath: 'walking',
+      walk: true,
     };
   }
 
@@ -612,9 +614,16 @@ class MapScreen extends React.Component {
       selectedMarker,
       typePath,
       repaintRun,
+      walk,
     } = this.state;
     return (
       <View style={styles.container}>
+        {walk ? (
+          <Walktrought
+            setField={this.setField}
+            onClose={() => this.setState({ walk: false })}
+          />
+        ) : null}
         {mapReady && !selectedMarker && !repaintRun ? (
           <Filters onChange={this.onChangeFilters} filters={filters} />
         ) : null}
