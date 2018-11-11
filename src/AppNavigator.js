@@ -4,11 +4,11 @@ import MapScreen from './screens/MapScreen'
 import RouteScreen from './screens/RouteScreen'
 
 const AppNavigator = StackNavigator({
-    map: {
-        screen: MapScreen
-    },
     promo: {
         screen: PromoScreen
+    },
+    map: {
+        screen: MapScreen
     },
     route: {
         screen: RouteScreen
