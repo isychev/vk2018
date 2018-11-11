@@ -389,6 +389,8 @@ const MARKERS = [
   },
 ];
 
+let once = true;
+
 class MapScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -618,10 +620,13 @@ class MapScreen extends React.Component {
     } = this.state;
     return (
       <View style={styles.container}>
-        {walk ? (
+        {walk && once ? (
           <Walktrought
             setField={this.setField}
-            onClose={() => this.setState({ walk: false })}
+            onClose={() => {
+              once = false;
+              this.setState({ walk: false });
+            }}
           />
         ) : null}
         {mapReady && !selectedMarker && !repaintRun ? (

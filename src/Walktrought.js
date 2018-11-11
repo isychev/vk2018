@@ -19,9 +19,8 @@ class RouteScreen extends Component {
     const { setField, onClose } = this.props;
     const { show } = this.state;
 
-    return (
+    return show ? (
       <View style={styles.container}>
-        <Text>Путь</Text>
         <View style={styles.bg} onPress={onClose} />
 
         {show ? (
@@ -39,8 +38,8 @@ class RouteScreen extends Component {
             }}
           >
             <Text>
-              Пользуйся фасолью для снятия болей в пояснице и растрорению
-              кофейной гущи в рыбе.
+              Теперь вы можете снимать наличные на кассах магазинов. Включи
+              данный фильтр, чтобы узнать каких именно.
             </Text>
           </View>
         ) : null}
@@ -56,8 +55,8 @@ class RouteScreen extends Component {
           >
             <FilterButton
               onPress={() => {
-                onClose();
                 setField && setField('shop', !shop);
+                onClose();
               }}
             >
               <Icon name="shopping-cart" size={30} color="#e35205" />
@@ -65,7 +64,7 @@ class RouteScreen extends Component {
           </View>
         ) : null}
       </View>
-    );
+    ) : null;
   }
 }
 
