@@ -484,6 +484,7 @@ class MapScreen extends React.Component {
       // selectedMarker: null,
       repaintRun: true,
     });
+    this.animateToCursor();
     setTimeout(() => {
       this.setState({
         // selectedMarker: oldSelectedMarker,
@@ -497,12 +498,34 @@ class MapScreen extends React.Component {
       filterMarkers: this.getFiltermarkers(filters),
     });
   };
+  animateToCursor = () => {
+    this.map.fitToCoordinates(
+      [
+        {
+          latitude: this.state.currentPosition.latitude,
+          longitude: this.state.currentPosition.longitude,
+        },
+        {
+          latitude: 59.939018,
+          longitude: 30.317986,
+        },
+        {
+          latitude: 59.939029,
+          longitude: 30.319096,
+        },
+      ],
+      {
+        animated: true,
+      },
+    );
+  };
   onSelectMarker = marker => {
     const oldMarkers = this.state.filterMarkers;
     this.setState({
       selectedMarker: marker,
       filterMarkers: [],
     });
+    this.animateToCursor();
     setTimeout(() => {
       this.setState({
         filterMarkers: oldMarkers,
@@ -521,43 +544,62 @@ class MapScreen extends React.Component {
       return isBank && isPaypass && isTake && isWork;
     });
   renderMarkers = () =>
-    this.state.filterMarkers.map((marker, index) => {
-      const ref = null;
-      return (
-        <Marker
-          key={`${marker.latitude}${marker.longitude}${index}`}
-          coordinate={{
-            latitude: marker.latitude,
-            longitude: marker.longitude,
+    this.state.filterMarkers.map((marker, index) => (
+      <Marker
+        key={`${marker.latitude}${marker.longitude}${index}`}
+        coordinate={{
+          latitude: marker.latitude,
+          longitude: marker.longitude,
+        }}
+        calloutVisible={!this.state.selectedMarker}
+      >
+        <Callout
+          onPress={() => {
+            this.onSelectMarker(marker);
           }}
-          calloutVisible={!this.state.selectedMarker}
         >
-          <Callout
-            onPress={() => {
-              this.onSelectMarker(marker);
+          <View
+            style={{
+              padding: 5,
             }}
           >
-            <View
-              style={{
-                padding: 5,
+            <Text>{`${
+              marker.type === 'shop' ? 'Магазин' : 'Банк'
+            }: ${marker.bank || marker.name}`}</Text>
+            <Text>{`Время работы: ${marker.timeWork}`}</Text>
+            <Text>Путь: 4 мин</Text>
+            <Button
+              title="Маршрут"
+              onPress={() => {
+                this.onSelectMarker(marker);
               }}
-            >
-              <Text>{`${
-                marker.type === 'shop' ? 'Магазин' : 'Банк'
-              }: ${marker.bank || marker.name}`}</Text>
-              <Text>{`Время работы: ${marker.timeWork}`}</Text>
-              <Text>Путь: 4 мин</Text>
-              <Button
-                title="Маршрут"
-                onPress={() => {
-                  this.onSelectMarker(marker);
-                }}
-              />
-            </View>
-          </Callout>
-        </Marker>
-      );
+            />
+          </View>
+        </Callout>
+      </Marker>
+    ));
+  onClearRun = () => {
+    const { selectedMarker } = this.state;
+    this.setState({
+      selectedMarker: null,
     });
+    this.map.fitToCoordinates(
+      [
+        {
+          latitude: this.state.currentPosition.latitude,
+          longitude: this.state.currentPosition.longitude,
+        },
+        {
+          latitude: selectedMarker.latitude,
+          longitude: selectedMarker.longitude,
+        },
+      ],
+      {
+        edgePadding: { left: 150, right: 150 },
+        animated: true,
+      },
+    );
+  };
   render() {
     const { width, height } = Dimensions.get('window');
     const spin = this.spinValue.interpolate({
@@ -577,7 +619,11 @@ class MapScreen extends React.Component {
           <Filters onChange={this.onChangeFilters} filters={filters} />
         ) : null}
         {selectedMarker ? (
-          <ButtonRun onChange={this.onChangeTypePath} value={typePath} />
+          <ButtonRun
+            onChange={this.onChangeTypePath}
+            onClose={this.onClearRun}
+            value={typePath}
+          />
         ) : null}
 
         <View
@@ -587,6 +633,9 @@ class MapScreen extends React.Component {
         >
           {this.state.currentPosition ? (
             <MapView
+              ref={ref => {
+                this.map = ref;
+              }}
               // zoomControlEnabled
               // followsUserLocation
               // showsMyLocationButton

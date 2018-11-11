@@ -162,17 +162,35 @@ export default class ButtonRun extends React.Component {
                 </View>
               </TranslateYAndOpacity>
             ) : null}
-            <TouchableOpacity
-              style={this.state.isOpen ? openButtonStyle : buttonStyle}
-              activeOpacity={0.7}
-              onPress={this.handleClick}
-            >
-              <Icon
-                name={this.getIcon()}
-                size={this.state.isOpen ? 40 : 29}
-                color="#fff"
-              />
-            </TouchableOpacity>
+            <View>
+              <TouchableOpacity
+                style={this.state.isOpen ? openButtonStyle : buttonStyle}
+                activeOpacity={0.7}
+                onPress={this.handleClick}
+              >
+                <Icon
+                  name={this.getIcon()}
+                  size={this.state.isOpen ? 40 : 29}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+              <View style={{
+                position:'absolute',
+                top: 10,
+                right: -80,
+
+              }}>
+                <FilterButton
+                  onPress={() => {
+                    this.props.onClose();
+                  }}
+                >
+                  <Icon name="close" size={20} color="#e35205" />
+                </FilterButton>
+              </View>
+
+            </View>
+
           </View>
         </TranslateYAndOpacity>
       </View>
